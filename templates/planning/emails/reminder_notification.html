@@ -1,0 +1,65 @@
+<!DOCTYPE html>
+<html lang="de">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Erinnerung: Termin kommt bald!</title>
+    <style>
+        body { font-family: Arial, sans-serif; color: #333; line-height: 1.6; }
+        .container { max-width: 600px; margin: 0 auto; padding: 20px; }
+        .header { background-color: #f59e0b; color: white; padding: 20px; border-radius: 8px 8px 0 0; text-align: center; }
+        .content { background-color: #f9fafb; padding: 20px; border: 1px solid #e5e7eb; }
+        .event-box { background-color: white; padding: 15px; border-left: 4px solid #f59e0b; margin: 15px 0; }
+        .role-badge { display: inline-block; background-color: #3b82f6; color: white; padding: 8px 12px; border-radius: 5px; font-weight: bold; margin: 10px 0; }
+        .footer { text-align: center; font-size: 12px; color: #6b7280; margin-top: 20px; padding-top: 20px; border-top: 1px solid #e5e7eb; }
+        .highlight { background-color: #fef3c7; padding: 15px; border-radius: 5px; margin: 15px 0; }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <div class="header">
+            <h1>⏰ Erinnerung</h1>
+            <p>Ihr Termin kommt bald!</p>
+        </div>
+        
+        <div class="content">
+            <p>Hallo {{ user.first_name|default:user.username }},</p>
+            
+            <p>dies ist eine freundliche Erinnerung an Ihren Einsatz in {{ days_before }} Tag{{ days_before|pluralize }}:</p>
+            
+            <div class="event-box">
+                <h3>{{ event.title }}</h3>
+                <p>
+                    📅 {{ event.date|date:"d. M. Y" }}<br>
+                    🕐 {{ event.start_time|time:"H:i" }} - {{ event.end_time|time:"H:i" }} Uhr
+                </p>
+                {% if event.location %}
+                <p>📍 {{ event.location }}</p>
+                {% endif %}
+            </div>
+            
+            <div class="role-badge">
+                {{ role }}
+            </div>
+            
+            <div class="highlight">
+                <strong>✓ Vorbereitung:</strong>
+                <ul>
+                    <li>Alle Geräte überprüfen</li>
+                    <li>Im Kalender bestätigt?</li>
+                    <li>Bei Problemen: Admin kontaktieren</li>
+                </ul>
+            </div>
+            
+            <p style="margin-top: 20px; font-size: 14px;">
+                Vielen Dank für Ihren Einsatz!<br>
+                <strong>Ihr Gemeindeteam</strong>
+            </p>
+        </div>
+        
+        <div class="footer">
+            <p>© Christusgemeinde • Technikplanung</p>
+        </div>
+    </div>
+</body>
+</html>

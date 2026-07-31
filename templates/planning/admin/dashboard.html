@@ -1,0 +1,128 @@
+{% extends 'base.html' %}
+
+{% block title %}Admin Dashboard - Technikplanung{% endblock %}
+
+{% block content %}
+<div class="space-y-6">
+    <!-- Header -->
+    <div class="bg-gradient-to-r from-purple-600 to-purple-800 text-white rounded-lg p-8">
+        <h1 class="text-3xl font-bold mb-2">Admin Dashboard</h1>
+        <p class="text-purple-100">Verwaltung der Technikplanung</p>
+    </div>
+    
+    <!-- Key Metrics -->
+    <div class="grid grid-cols-1 md:grid-cols-4 gap-4">
+        <div class="bg-white rounded-lg shadow p-6">
+            <div class="text-gray-600 text-sm font-semibold mb-2">AKTIVE NUTZER</div>
+            <div class="text-3xl font-bold text-blue-600">{{ total_users }}</div>
+        </div>
+        
+        <div class="bg-white rounded-lg shadow p-6">
+            <div class="text-gray-600 text-sm font-semibold mb-2">TERMINE</div>
+            <div class="text-3xl font-bold text-green-600">{{ total_events }}</div>
+        </div>
+        
+        <div class="bg-white rounded-lg shadow p-6">
+            <div class="text-gray-600 text-sm font-semibold mb-2">UNVOLLSTÄNDIG</div>
+            <div class="text-3xl font-bold text-yellow-600">{{ unassigned_events.count }}</div>
+        </div>
+        
+        <div class="bg-white rounded-lg shadow p-6">
+            <div class="text-gray-600 text-sm font-semibold mb-2">KOMMEND</div>
+            <div class="text-3xl font-bold text-purple-600">{{ upcoming_events.count }}</div>
+        </div>
+    </div>
+    
+    <!-- Quick Actions -->
+    <div class="bg-white rounded-lg shadow p-6">
+        <h2 class="text-xl font-bold mb-4">Schnellaktionen</h2>
+        <div class="grid grid-cols-1 md:grid-cols-3 gap-4">
+            <a href="{% url 'event_create' %}" class="btn-primary text-center py-3">
+                ➕ Neuer Termin
+            </a>
+            <a href="{% url 'event_list' %}" class="btn-primary text-center py-3">
+                📋 Alle Termine
+            </a>
+            <a href="{% url 'user_management' %}" class="btn-primary text-center py-3">
+                👥 Benutzerverwaltung
+            </a>
+        </div>
+    </div>
+    
+    <!-- Upcoming Events -->
+    <div class="bg-white rounded-lg shadow p-6">
+        <h2 class="text-xl font-bold mb-4">Kommende Termine</h2>
+        {% if upcoming_events %}
+        <div class="overflow-x-auto">
+            <table class="w-full text-sm">
+                <thead class="bg-gray-100">
+                    <tr>
+                        <th class="px-4 py-2 text-left">Termin</th>
+                        <th class="px-4 py-2 text-left">Datum</th>
+                        <th class="px-4 py-2 text-left">Status</th>
+                        <th class="px-4 py-2 text-center">Zuteilung</th>
+                        <th class="px-4 py-2">Aktionen</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    {% for event in upcoming_events %}
+                    <tr class="border-b hover:bg-gray-50">
+                        <td class="px-4 py-2 font-semibold">{{ event.title }}</td>
+                        <td class="px-4 py-2">{{ event.date|date:"d. M. Y" }}</td>
+                        <td class="px-4 py-2">
+                            <span class="text-xs px-2 py-1 rounded-full
+                                {% if event.status == 'offen' %}bg-yellow-100 text-yellow-800
+                                {% elif event.status == 'geplant' %}bg-green-100 text-green-800
+                                {% else %}bg-gray-100 text-gray-800{% endif %}">
+                                {{ event.get_status_display }}
+                            </span>
+                        </td>
+                        <td class="px-4 py-2 text-center">
+                            {% if event.is_fully_assigned %}
+                            <span class="text-green-600 font-semibold">✓</span>
+                            {% else %}
+                            <span class="text-red-600 font-semibold">✗</span>
+                            {% endif %}
+                        </td>
+                        <td class="px-4 py-2">
+                            <a href="{% url 'event_detail' event.id %}" class="text-blue-600 hover:underline">
+                                Details
+                            </a>
+                        </td>
+                    </tr>
+                    {% endfor %}
+                </tbody>
+            </table>
+        </div>
+        {% else %}
+        <p class="text-gray-600">Keine kommenden Termine</p>
+        {% endif %}
+    </div>
+    
+    <!-- Unassigned Events Alert -->
+    {% if unassigned_events %}
+    <div class="bg-yellow-50 border-l-4 border-yellow-400 rounded-lg p-6">
+        <h3 class="font-bold text-yellow-800 mb-3">⚠️ Unvollständig besetzte Termine</h3>
+        <ul class="space-y-2">
+            {% for event in unassigned_events %}
+            <li class="text-yellow-700">
+                <a href="{% url 'event_detail' event.id %}" class="underline">
+                    {{ event.title }} ({{ event.date|date:"d. M. Y" }})
+                </a>
+                - {{ event.assignments.count }}/2 Rollen besetzt
+            </li>
+            {% endfor %}
+        </ul>
+    </div>
+    {% endif %}
+    
+    <!-- Statistics Link -->
+    <div class="bg-blue-50 border border-blue-200 rounded-lg p-6 text-center">
+        <h3 class="font-bold text-blue-900 mb-2">📊 Faire Verteilung</h3>
+        <p class="text-blue-700 mb-4">Sehen Sie, wie gleichmäßig die Einsätze verteilt sind</p>
+        <a href="{% url 'statistics' %}" class="btn-primary">
+            Zu den Statistiken
+        </a>
+    </div>
+</div>
+{% endblock %}

@@ -1,0 +1,137 @@
+{% extends 'base.html' %}
+{% load crispy_forms_tags %}
+
+{% block title %}{{ title }} - Technikplanung{% endblock %}
+
+{% block content %}
+<div class="max-w-2xl mx-auto">
+    <div>
+        <h1 class="text-3xl font-bold mb-2">{{ title }}</h1>
+        <p class="text-gray-600">Füllen Sie alle Felder aus</p>
+    </div>
+    
+    <form method="POST" class="bg-white rounded-lg shadow p-6 mt-6 space-y-4">
+        {% csrf_token %}
+        
+        <div>
+            <label class="block text-sm font-semibold text-gray-700 mb-2">Titel *</label>
+            {{ form.title }}
+        </div>
+        
+        <div>
+            <label class="block text-sm font-semibold text-gray-700 mb-2">Beschreibung</label>
+            {{ form.description }}
+        </div>
+        
+        <div>
+            <label class="block text-sm font-semibold text-gray-700 mb-2">Ort *</label>
+            {{ form.location }}
+        </div>
+        
+        <div class="grid grid-cols-1 md:grid-cols-3 gap-4">
+            <div>
+                <label class="block text-sm font-semibold text-gray-700 mb-2">Datum *</label>
+                {{ form.date }}
+            </div>
+            <div>
+                <label class="block text-sm font-semibold text-gray-700 mb-2">Startzeit *</label>
+                {{ form.start_time }}
+            </div>
+            <div>
+                <label class="block text-sm font-semibold text-gray-700 mb-2">Endzeit *</label>
+                {{ form.end_time }}
+            </div>
+        </div>
+        
+        <div>
+            <label class="block text-sm font-semibold text-gray-700 mb-2">Status *</label>
+            {{ form.status }}
+        </div>
+        
+        <div>
+            <label class="block text-sm font-semibold text-gray-700 mb-2">Frist für Verfügbarkeitseintragung *</label>
+            {{ form.availability_deadline }}
+            <p class="text-xs text-gray-600 mt-1">Nutzer können bis zu dieser Zeit ihre Verfügbarkeit eintragen</p>
+        </div>
+        
+        <div>
+            <label class="block text-sm font-semibold text-gray-700 mb-2">Hinweise</label>
+            {{ form.notes }}
+        </div>
+        
+        <!-- Wiederholung -->
+        <div class="border-t pt-4 mt-4">
+            <label class="flex items-center space-x-2 cursor-pointer">
+                {{ form.is_recurring }}
+                <span class="text-sm font-semibold text-gray-700">Wiederkehrend</span>
+            </label>
+        </div>
+        
+        {% if form.is_recurring.value %}
+        <div class="bg-blue-50 p-4 rounded-lg space-y-3">
+            <div>
+                <label class="block text-sm font-semibold text-gray-700 mb-2">Wiederholungsmuster</label>
+                {{ form.recurrence_pattern }}
+            </div>
+            <div>
+                <label class="block text-sm font-semibold text-gray-700 mb-2">Enddatum für Wiederholung</label>
+                {{ form.recurrence_end_date }}
+            </div>
+        </div>
+        {% endif %}
+        
+        <!-- Fehler -->
+        {% if form.non_field_errors %}
+        <div class="bg-red-100 text-red-800 p-3 rounded-lg">
+            {{ form.non_field_errors }}
+        </div>
+        {% endif %}
+        
+        {% for field in form %}
+            {% if field.errors %}
+            <div class="bg-red-100 text-red-800 p-3 rounded-lg text-sm">
+                <strong>{{ field.label }}:</strong>
+                {{ field.errors|join:", " }}
+            </div>
+            {% endif %}
+        {% endfor %}
+        
+        <!-- Buttons -->
+        <div class="pt-4 flex space-x-2">
+            <button type="submit" class="btn-primary">
+                💾 Speichern
+            </button>
+            <a href="{% url 'event_list' %}" class="btn-secondary">
+                ← Abbrechen
+            </a>
+        </div>
+    </form>
+</div>
+
+<style>
+    /* Einfache Styling für Form-Inputs */
+    input[type="text"],
+    input[type="date"],
+    input[type="time"],
+    input[type="datetime-local"],
+    select,
+    textarea {
+        width: 100%;
+        padding: 0.5rem;
+        border: 1px solid #d1d5db;
+        border-radius: 0.375rem;
+    }
+    
+    input[type="text"]:focus,
+    input[type="date"]:focus,
+    input[type="time"]:focus,
+    input[type="datetime-local"]:focus,
+    select:focus,
+    textarea:focus {
+        outline: none;
+        ring: 2px;
+        ring-color: rgb(59, 130, 246);
+        border-color: rgb(59, 130, 246);
+    }
+</style>
+{% endblock %}

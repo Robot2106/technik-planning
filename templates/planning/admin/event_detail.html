@@ -1,0 +1,148 @@
+{% extends 'base.html' %}
+
+{% block title %}{{ event.title }} - Technikplanung{% endblock %}
+
+{% block content %}
+<div class="space-y-6">
+    <!-- Header -->
+    <div class="bg-gradient-to-r from-blue-600 to-blue-800 text-white rounded-lg p-8">
+        <div class="flex justify-between items-start">
+            <div>
+                <h1 class="text-3xl font-bold">{{ event.title }}</h1>
+                <p class="text-blue-100">📅 {{ event.date|date:"l, d. M. Y" }} • 🕐 {{ event.start_time|time:"H:i" }}-{{ event.end_time|time:"H:i" }} Uhr</p>
+                {% if event.location %}<p class="text-blue-100">📍 {{ event.location }}</p>{% endif %}
+            </div>
+            <span class="text-xs px-3 py-1 rounded-full font-semibold bg-white
+                {% if event.status == 'entwurf' %}text-gray-800
+                {% elif event.status == 'offen' %}text-yellow-800
+                {% elif event.status == 'geplant' %}text-green-800
+                {% else %}text-blue-800{% endif %}">
+                {{ event.get_status_display }}
+            </span>
+        </div>
+    </div>
+    
+    <!-- Aktionen -->
+    <div class="flex gap-2 flex-wrap">
+        <a href="{% url 'event_update' event.id %}" class="btn-secondary">✏️ Bearbeiten</a>
+        {% if event.status == 'entwurf' or event.status == 'offen' %}
+            {% if event.status != 'offen' %}
+                <a href="{% url 'release_event' event.id %}" class="btn-primary">📢 Zur Eintragung freigeben</a>
+            {% endif %}
+            {% if availabilities.count > 0 %}
+                <a href="{% url 'auto_assign' event.id %}" class="btn-primary">⚙️ Auto-Zuteilung</a>
+            {% endif %}
+        {% endif %}
+        <a href="{% url 'event_list' %}" class="btn-secondary">← Zurück</a>
+    </div>
+    
+    <!-- Beschreibung -->
+    {% if event.description %}
+    <div class="bg-white rounded-lg shadow p-6">
+        <h2 class="text-lg font-bold mb-2">Beschreibung</h2>
+        <p class="text-gray-700">{{ event.description }}</p>
+    </div>
+    {% endif %}
+    
+    <!-- Verfügbarkeiten -->
+    <div class="bg-white rounded-lg shadow p-6">
+        <h2 class="text-lg font-bold mb-4">Verfügbarkeitseintragungen ({{ availabilities.count }})</h2>
+        
+        {% if availabilities %}
+        <div class="overflow-x-auto">
+            <table class="w-full text-sm">
+                <thead class="bg-gray-100">
+                    <tr>
+                        <th class="px-4 py-2 text-left">Benutzer</th>
+                        <th class="px-4 py-2 text-center">Ja</th>
+                        <th class="px-4 py-2 text-center">Vielleicht</th>
+                        <th class="px-4 py-2 text-center">Nein</th>
+                        <th class="px-4 py-2 text-left">Notizen</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    {% for avail in availabilities %}
+                    <tr class="border-b hover:bg-gray-50">
+                        <td class="px-4 py-2">{{ avail.user.get_full_name|default:avail.user.username }}</td>
+                        <td class="px-4 py-2 text-center">
+                            {% if avail.status == 'yes' %}<span class="text-green-600 font-bold">✓</span>{% endif %}
+                        </td>
+                        <td class="px-4 py-2 text-center">
+                            {% if avail.status == 'maybe' %}<span class="text-yellow-600 font-bold">~</span>{% endif %}
+                        </td>
+                        <td class="px-4 py-2 text-center">
+                            {% if avail.status == 'no' %}<span class="text-red-600 font-bold">✗</span>{% endif %}
+                        </td>
+                        <td class="px-4 py-2 text-gray-600">{{ avail.notes|truncatewords:10 }}</td>
+                    </tr>
+                    {% endfor %}
+                </tbody>
+            </table>
+        </div>
+        {% else %}
+        <p class="text-gray-600">Noch keine Verfügbarkeitseintragungen</p>
+        {% endif %}
+    </div>
+    
+    <!-- Zuteilungen -->
+    <div class="bg-white rounded-lg shadow p-6">
+        <div class="flex justify-between items-center mb-4">
+            <h2 class="text-lg font-bold">Zuteilungen</h2>
+            <span class="text-xs px-3 py-1 rounded-full font-semibold
+                {% if event.is_fully_assigned %}bg-green-100 text-green-800
+                {% else %}bg-red-100 text-red-800{% endif %}">
+                {% if event.is_fully_assigned %}✓ Vollständig{% else %}✗ Unvollständig{% endif %}
+            </span>
+        </div>
+        
+        <div class="space-y-3">
+            {% with ton_assignment=event.assignments|first %}
+            <!-- Tontechniker -->
+            <div class="border rounded-lg p-4">
+                <div class="text-sm font-semibold text-gray-600 mb-2">TONTECHNIKER</div>
+                {% with ton=event.assignments.filter:role__name:'ton'|first %}
+                    {% if ton %}
+                        <div class="text-lg font-bold">{{ ton.user.get_full_name|default:ton.user.username }}</div>
+                        <div class="text-xs text-gray-600 mt-1">
+                            {% if ton.assignment_type == 'auto' %}automatisch{% else %}manuell{% endif %}
+                            {% if ton.email_sent %}• E-Mail versendet{% endif %}
+                        </div>
+                    {% else %}
+                        <div class="text-gray-600 italic">Nicht eingeplant</div>
+                    {% endif %}
+                {% endwith %}
+            </div>
+            
+            <!-- Streaming -->
+            <div class="border rounded-lg p-4">
+                <div class="text-sm font-semibold text-gray-600 mb-2">STREAMING-BEAUFTRAGTER</div>
+                {% with streaming=event.assignments.filter:role__name:'streaming'|first %}
+                    {% if streaming %}
+                        <div class="text-lg font-bold">{{ streaming.user.get_full_name|default:streaming.user.username }}</div>
+                        <div class="text-xs text-gray-600 mt-1">
+                            {% if streaming.assignment_type == 'auto' %}automatisch{% else %}manuell{% endif %}
+                            {% if streaming.email_sent %}• E-Mail versendet{% endif %}
+                        </div>
+                    {% else %}
+                        <div class="text-gray-600 italic">Nicht eingeplant</div>
+                    {% endif %}
+                {% endwith %}
+            </div>
+            {% endwith %}
+        </div>
+    </div>
+    
+    <!-- Informationen -->
+    <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+        <div class="bg-white rounded-lg shadow p-6">
+            <h3 class="font-bold mb-2">Verfügbarkeitsfrist</h3>
+            <p class="text-sm text-gray-700">{{ event.availability_deadline|date:"d. M. Y, H:i" }} Uhr</p>
+        </div>
+        
+        <div class="bg-white rounded-lg shadow p-6">
+            <h3 class="font-bold mb-2">Erstellt</h3>
+            <p class="text-sm text-gray-700">{{ event.created_at|date:"d. M. Y, H:i" }} Uhr</p>
+        </div>
+    </div>
+</div>
+{% endblock %}

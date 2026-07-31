@@ -1,0 +1,91 @@
+{% extends 'base.html' %}
+
+{% block title %}Benutzerverwaltung - Technikplanung{% endblock %}
+
+{% block content %}
+<div class="space-y-6">
+    <div class="flex justify-between items-center">
+        <div>
+            <h1 class="text-3xl font-bold mb-2">Benutzerverwaltung</h1>
+            <p class="text-gray-600">Verwaltung aller Mitarbeiter und deren Rollen</p>
+        </div>
+        <a href="/admin/auth/user/add/" class="btn-primary">
+            ➕ Neuer Benutzer
+        </a>
+    </div>
+    
+    {% if users %}
+    <div class="grid grid-cols-1 gap-4">
+        {% for user in users %}
+        <div class="bg-white rounded-lg shadow p-6 hover:shadow-lg transition">
+            <div class="flex justify-between items-start mb-3">
+                <div>
+                    <h3 class="text-lg font-bold">{{ user.user.get_full_name|default:user.user.username }}</h3>
+                    <p class="text-gray-600">📧 {{ user.user.email }}</p>
+                    <p class="text-gray-600">👤 {{ user.user.username }}</p>
+                </div>
+                <span class="text-xs px-3 py-1 rounded-full font-semibold
+                    {% if user.is_active %}bg-green-100 text-green-800
+                    {% else %}bg-red-100 text-red-800{% endif %}">
+                    {% if user.is_active %}✓ Aktiv{% else %}✗ Inaktiv{% endif %}
+                </span>
+            </div>
+            
+            <!-- Rollen -->
+            <div class="mb-3">
+                <div class="text-sm font-semibold text-gray-700 mb-2">Rollen:</div>
+                <div class="flex flex-wrap gap-2">
+                    {% for role in user.roles.all %}
+                    <span class="inline-block bg-blue-100 text-blue-800 px-3 py-1 rounded-full text-sm">
+                        {{ role.get_name_display }}
+                    </span>
+                    {% empty %}
+                    <span class="text-gray-600 text-sm italic">Keine Rollen zugeordnet</span>
+                    {% endfor %}
+                </div>
+            </div>
+            
+            <!-- Kontakt -->
+            {% if user.phone %}
+            <div class="text-sm text-gray-600 mb-3">
+                📞 {{ user.phone }}
+            </div>
+            {% endif %}
+            
+            <!-- Statistik -->
+            <div class="bg-gray-50 p-3 rounded mb-3 text-sm">
+                <div class="flex gap-4">
+                    <div>
+                        <span class="text-gray-600">Einsätze:</span>
+                        <strong>{{ user.get_assignments_count }}</strong>
+                    </div>
+                </div>
+            </div>
+            
+            <!-- Aktionen -->
+            <div class="flex gap-2 flex-wrap">
+                <a href="/admin/planning/userprofile/{{ user.id }}/change/" class="text-blue-600 hover:underline text-sm">
+                    ✏️ Bearbeiten
+                </a>
+                <a href="/admin/auth/user/?username={{ user.user.username }}" class="text-blue-600 hover:underline text-sm">
+                    👁️ In Admin öffnen
+                </a>
+            </div>
+        </div>
+        {% endfor %}
+    </div>
+    {% else %}
+    <div class="bg-blue-50 border border-blue-200 rounded-lg p-8 text-center">
+        <p class="text-blue-900">👥 Noch keine Benutzer vorhanden</p>
+    </div>
+    {% endif %}
+    
+    <!-- Hinweis -->
+    <div class="bg-blue-50 border border-blue-200 rounded-lg p-4">
+        <p class="text-blue-900 text-sm">
+            <strong>💡 Hinweis:</strong> Neue Benutzer müssen im Django Admin erstellt werden.
+            <a href="/admin/auth/user/" class="underline font-semibold">Zum Django Admin →</a>
+        </p>
+    </div>
+</div>
+{% endblock %}

@@ -1,0 +1,71 @@
+<!DOCTYPE html>
+<html lang="de">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Sie wurden eingeplant!</title>
+    <style>
+        body { font-family: Arial, sans-serif; color: #333; line-height: 1.6; }
+        .container { max-width: 600px; margin: 0 auto; padding: 20px; }
+        .header { background-color: #10b981; color: white; padding: 20px; border-radius: 8px 8px 0 0; text-align: center; }
+        .content { background-color: #f9fafb; padding: 20px; border: 1px solid #e5e7eb; }
+        .event-box { background-color: white; padding: 15px; border-left: 4px solid #10b981; margin: 15px 0; }
+        .role-badge { display: inline-block; background-color: #10b981; color: white; padding: 8px 12px; border-radius: 5px; font-weight: bold; margin: 10px 0; }
+        .button { display: inline-block; background-color: #10b981; color: white; padding: 10px 20px; text-decoration: none; border-radius: 5px; margin-top: 15px; }
+        .footer { text-align: center; font-size: 12px; color: #6b7280; margin-top: 20px; padding-top: 20px; border-top: 1px solid #e5e7eb; }
+        .checklist { background-color: white; padding: 15px; border-radius: 5px; margin: 15px 0; }
+        .checklist-item { padding: 5px 0; }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <div class="header">
+            <h1>✦ Christusgemeinde</h1>
+            <p>Sie wurden eingeplant! 🎉</p>
+        </div>
+        
+        <div class="content">
+            <p>Hallo {{ user.first_name|default:user.username }},</p>
+            
+            <p>freudige Mitteilung: Sie wurden für folgenden Termin eingeplant:</p>
+            
+            <div class="event-box">
+                <h3>{{ event.title }}</h3>
+                <p>
+                    📅 {{ event.date|date:"d. M. Y" }}<br>
+                    🕐 {{ event.start_time|time:"H:i" }} - {{ event.end_time|time:"H:i" }} Uhr
+                </p>
+                {% if event.location %}
+                <p>📍 {{ event.location }}</p>
+                {% endif %}
+            </div>
+            
+            <div class="role-badge">
+                {{ role }}
+            </div>
+            
+            <div class="checklist">
+                <p><strong>Checkliste:</strong></p>
+                <div class="checklist-item">☐ Termin in Kalender eintragen</div>
+                <div class="checklist-item">☐ Alle benötigten Geräte prüfen</div>
+                <div class="checklist-item">☐ Bei Fragen: Gemeindeleitung kontaktieren</div>
+            </div>
+            
+            <p>
+                Sie können Ihren Einsatzplan jederzeit in Ihrem Profil einsehen:
+            </p>
+            
+            <a href="{{ link }}" class="button">→ Mein Einsatzplan</a>
+            
+            <p style="margin-top: 20px; font-size: 14px;">
+                Vielen Dank für Ihre Unterstützung!<br>
+                <strong>Ihr Gemeindeteam</strong>
+            </p>
+        </div>
+        
+        <div class="footer">
+            <p>© Christusgemeinde • Technikplanung</p>
+        </div>
+    </div>
+</body>
+</html>

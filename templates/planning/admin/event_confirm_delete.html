@@ -1,0 +1,42 @@
+{% extends 'base.html' %}
+
+{% block title %}Termin löschen - Technikplanung{% endblock %}
+
+{% block content %}
+<div class="max-w-2xl mx-auto">
+    <div class="bg-red-50 border border-red-200 rounded-lg p-8 text-center">
+        <h1 class="text-3xl font-bold text-red-800 mb-2">⚠️ Warnung</h1>
+        <p class="text-red-700 mb-6">
+            Möchten Sie diesen Termin wirklich löschen?
+        </p>
+        
+        <div class="bg-white rounded-lg p-6 mb-6 text-left">
+            <div class="mb-3">
+                <h3 class="font-bold text-lg">{{ event.title }}</h3>
+                <p class="text-gray-600">📅 {{ event.date|date:"d. M. Y" }} • 🕐 {{ event.start_time|time:"H:i" }}-{{ event.end_time|time:"H:i" }} Uhr</p>
+                {% if event.location %}<p class="text-gray-600">📍 {{ event.location }}</p>{% endif %}
+            </div>
+            
+            <div class="text-sm text-gray-600 space-y-2">
+                <p><strong>Status:</strong> {{ event.get_status_display }}</p>
+                <p><strong>Verfügbarkeitseintragungen:</strong> {{ event.availabilities.count }}</p>
+                <p><strong>Zuteilungen:</strong> {{ event.assignments.count }}</p>
+            </div>
+        </div>
+        
+        <p class="text-red-700 font-semibold mb-6">
+            ⚠️ Diese Aktion kann nicht rückgängig gemacht werden!
+        </p>
+        
+        <form method="POST" class="space-x-4">
+            {% csrf_token %}
+            <button type="submit" class="btn-danger inline-block">
+                🗑️ Ja, wirklich löschen
+            </button>
+            <a href="{% url 'event_detail' event.id %}" class="btn-secondary inline-block">
+                ← Abbrechen
+            </a>
+        </form>
+    </div>
+</div>
+{% endblock %}

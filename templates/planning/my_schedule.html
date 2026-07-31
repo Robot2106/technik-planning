@@ -1,0 +1,63 @@
+{% extends 'base.html' %}
+
+{% block title %}Mein Einsatzplan - Technikplanung{% endblock %}
+
+{% block content %}
+<div class="space-y-6">
+    <div>
+        <h1 class="text-3xl font-bold mb-2">Mein Einsatzplan</h1>
+        <p class="text-gray-600">Hier sehen Sie alle Ihre eingeplanten Termine</p>
+    </div>
+    
+    {% if assignments %}
+    <div class="space-y-4">
+        {% for assignment in assignments %}
+        <div class="bg-white rounded-lg shadow p-6 border-l-4 border-green-600 hover:shadow-lg transition">
+            <div class="flex justify-between items-start mb-3">
+                <div>
+                    <h3 class="text-xl font-bold">{{ assignment.event.title }}</h3>
+                    <p class="text-gray-600">📅 {{ assignment.event.date|date:"d. M. Y" }} • 🕐 {{ assignment.event.start_time|time:"H:i" }}-{{ assignment.event.end_time|time:"H:i" }} Uhr</p>
+                    {% if assignment.event.location %}<p class="text-gray-600">📍 {{ assignment.event.location }}</p>{% endif %}
+                </div>
+                <div class="text-right">
+                    <span class="inline-block bg-green-100 text-green-800 px-3 py-1 rounded-full text-sm font-semibold">
+                        ✓ {{ assignment.role.get_name_display }}
+                    </span>
+                </div>
+            </div>
+            
+            {% if assignment.event.description %}
+            <div class="bg-gray-50 p-3 rounded mb-3 text-sm">
+                <strong>Beschreibung:</strong><br>
+                {{ assignment.event.description }}
+            </div>
+            {% endif %}
+            
+            {% if assignment.event.notes %}
+            <div class="bg-yellow-50 p-3 rounded text-sm">
+                <strong>📝 Hinweise:</strong> {{ assignment.event.notes }}
+            </div>
+            {% endif %}
+            
+            <div class="mt-4 pt-4 border-t border-gray-200 text-sm text-gray-600">
+                {% if assignment.assignment_type == 'auto' %}
+                <span class="text-xs bg-blue-100 text-blue-800 px-2 py-1 rounded">Automatisch eingeplant</span>
+                {% else %}
+                <span class="text-xs bg-purple-100 text-purple-800 px-2 py-1 rounded">Manuell eingeplant</span>
+                {% endif %}
+                
+                {% if assignment.email_sent %}
+                <span class="text-xs bg-green-100 text-green-800 px-2 py-1 rounded ml-2">✓ Benachrichtigung versendet</span>
+                {% endif %}
+            </div>
+        </div>
+        {% endfor %}
+    </div>
+    {% else %}
+    <div class="bg-blue-50 border border-blue-200 rounded-lg p-8 text-center">
+        <p class="text-blue-900 mb-2">😊 Sie haben noch keine Einsätze geplant</p>
+        <p class="text-blue-700 text-sm">Verfügbarkeiten eintragen → automatische Planung → hier werden Ihre Einsätze angezeigt</p>
+    </div>
+    {% endif %}
+</div>
+{% endblock %}
